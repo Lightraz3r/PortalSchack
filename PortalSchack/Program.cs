@@ -118,12 +118,10 @@ namespace Luffarschack
                     while (enter == false)
                     {
                         enter = CurrentPlayers[a % 2].Move();
+                        CursorOk();
+                        move = CursorPos;
                         if (Simulate == false) { ShowTable(); }
                     }
-                    //for (int i = 0; i < 2; i++)
-                    //{
-                    //    move[i] = CurrentPlayers[a % 2].Move(Board.GetLength(i), LastMove[i]) - 1;
-                    //}
                     input = MoveOk(move, CurrentPlayers[a % 2]);
                 }
                 PutPiece(move, CurrentPlayers[a % 2]);
@@ -134,6 +132,14 @@ namespace Luffarschack
                 if (CheckDraw() == true) { if (Simulate == false) { Console.WriteLine("Draw"); Console.ReadKey(); } return null; }
                 a++;
             }
+        }
+
+        private void CursorOk()
+        {
+            if(CursorPos[0] > Board.GetLength(0) - 1) { CursorPos[0] = Board.GetLength(0) - 1; }
+            if(CursorPos[0] < 0) { CursorPos[0] = 0; }
+            if(CursorPos[1] > Board.GetLength(1) - 1) { CursorPos[1] = Board.GetLength(1) - 1; }
+            if(CursorPos[1] < 0) { CursorPos[1] = 0; }
         }
 
         private bool CheckDraw()
@@ -155,7 +161,7 @@ namespace Luffarschack
             {
                 for (int x = 0; x < Board.GetLength(0); x++)
                 {
-                    if (CursorPos[0] != x && CursorPos[1] != y) { Console.Write("|"); }
+                    if (x != CursorPos[0] || y != CursorPos[1]) { Console.Write("|"); }
                     else { Console.Write(":"); }
                     if (Board[x, y] == null) { Console.Write(" "); }
                     else if (Board[x, y].Owner == CurrentPlayers[0]) { Console.Write("X"); }
@@ -323,7 +329,12 @@ namespace Luffarschack
 
         public override bool Move()
         {
-            //return rand.Next(1, BoardSize + 2);
+            int key = rand.Next(1, 6);
+            if (key == 1) { Game.CursorPos[1]++; }
+            else if (key == 2) { Game.CursorPos[1]--; }
+            else if (key == 3) { Game.CursorPos[0]++; }
+            else if (key == 4) { Game.CursorPos[0]--; }
+            else if (key == 5) { return true; }
             return false;
         }
     }
