@@ -329,13 +329,16 @@ namespace Luffarschack
 
         public override bool Move()
         {
-            int key = rand.Next(1, 6);
-            if (key == 1) { Game.CursorPos[1]++; }
-            else if (key == 2) { Game.CursorPos[1]--; }
-            else if (key == 3) { Game.CursorPos[0]++; }
-            else if (key == 4) { Game.CursorPos[0]--; }
-            else if (key == 5) { return true; }
-            return false;
+            while (true)
+            {
+                int key = rand.Next(1, 6);
+                if (key == 1) { Game.CursorPos[1]++; }
+                else if (key == 2) { Game.CursorPos[1]--; }
+                else if (key == 3) { Game.CursorPos[0]++; }
+                else if (key == 4) { Game.CursorPos[0]--; }
+                else { break; }
+            }
+            return true;
         }
     }
 
