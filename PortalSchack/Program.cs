@@ -88,6 +88,8 @@ namespace Luffarschack
 
         public int[] LastMove { get; private set; }
 
+        static ConsoleKeyInfo KeyPressed;
+
         public Game(Player playerOne, Player playerTwo, int xy, int iRad, bool simulate)
         {
             CurrentPlayers[0] = playerOne;
@@ -128,10 +130,22 @@ namespace Luffarschack
                 Console.SetCursorPosition(0, Board.GetLength(1) + 10);
                 if (Simulate == false) { Console.WriteLine("Jag Lägger min pjäs på x =" + (move[0] + 1) + " och y = " + (move[1] + 1)); }
                 if (Simulate == false) { ShowTable(); }
-                if (CheckWin(move) == true) { if (Simulate == false) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); Console.ReadKey(); } return CurrentPlayers[a % 2]; }
-                if (CheckDraw() == true) { if (Simulate == false) { Console.WriteLine("Draw"); Console.ReadKey(); } return null; }
+                if (CheckWin(move) == true) { if (Simulate == false) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); PressedSpace(); } return CurrentPlayers[a % 2]; }
+                if (CheckDraw() == true) { if (Simulate == false) { Console.WriteLine("Draw"); PressedSpace(); } return null; }
                 a++;
             }
+        }
+
+        private void PressedSpace()
+        {
+            Console.WriteLine("Press Space to Continue"); 
+            string key = "";
+            while (key != "Spacebar") 
+            {
+                KeyPressed = Console.ReadKey();
+                key = KeyPressed.Key.ToString();
+            }
+            return;
         }
 
         private void CursorOk()
