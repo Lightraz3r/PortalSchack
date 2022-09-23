@@ -139,13 +139,12 @@ namespace Luffarschack
         private void PressedSpace()
         {
             Console.WriteLine("Press Space to Continue"); 
-            string key = "";
-            while (key != "Spacebar") 
+            while (true) 
             {
                 KeyPressed = Console.ReadKey();
-                key = KeyPressed.Key.ToString();
+                string key = KeyPressed.Key.ToString();
+                if (key == "Spacebar") { return; }
             }
-            return;
         }
 
         private void CursorOk()
@@ -175,8 +174,9 @@ namespace Luffarschack
             {
                 for (int x = 0; x < Board.GetLength(0); x++)
                 {
-                    if (x != CursorPos[0] || y != CursorPos[1]) { Console.Write("|"); }
-                    else { Console.Write(":"); }
+                    if (x == CursorPos[0] + 1 && y == CursorPos[1]) { Console.Write("<"); }
+                    else if (x != CursorPos[0] || y != CursorPos[1]) { Console.Write("|"); }
+                    else { Console.Write(">"); }
                     if (Board[x, y] == null) { Console.Write(" "); }
                     else if (Board[x, y].Owner == CurrentPlayers[0]) { Console.Write("X"); }
                     else if (Board[x, y].Owner == CurrentPlayers[1]) { Console.Write("O"); }
