@@ -181,7 +181,8 @@ namespace Luffarschack
                     else if (Board[x, y].Owner == CurrentPlayers[0]) { Console.Write("X"); }
                     else if (Board[x, y].Owner == CurrentPlayers[1]) { Console.Write("O"); }
                 }
-                Console.WriteLine("|");
+                if (Board.GetLength(0) == CursorPos[0] + 1 && y == CursorPos[1]) { Console.WriteLine("<"); }
+                else { Console.WriteLine("|"); }
             }
             Console.SetCursorPosition(0, 7);
         }
