@@ -119,7 +119,7 @@ namespace Luffarschack
                     bool enter = false;
                     while (enter == false)
                     {
-                        enter = CurrentPlayers[a % 2].Move();
+                        enter = CurrentPlayers[a % 2].MoveCursor();
                         CursorOk();
                         move = CursorPos;
                         if (Simulate == false) { ShowTable(); }
@@ -308,7 +308,7 @@ namespace Luffarschack
     public abstract class Player
     {
         public string Name { get; protected set; }
-        public abstract bool Move();
+        public abstract bool MoveCursor();
     }
 
     class HumanPlayer : Player
@@ -318,7 +318,7 @@ namespace Luffarschack
             Name = name;
         }
 
-        public override bool Move()
+        public override bool MoveCursor()
         {
             //int number = Convert.ToInt32(Console.ReadLine());
             //return number;
@@ -342,7 +342,7 @@ namespace Luffarschack
             Name = name;
         }
 
-        public override bool Move()
+        public override bool MoveCursor()
         {
             while (true)
             {
@@ -351,9 +351,8 @@ namespace Luffarschack
                 else if (key == 2) { Game.CursorPos[1]--; }
                 else if (key == 3) { Game.CursorPos[0]++; }
                 else if (key == 4) { Game.CursorPos[0]--; }
-                else { break; }
+                else { return true; }
             }
-            return true;
         }
     }
 
@@ -365,7 +364,7 @@ namespace Luffarschack
             Name = name;
         }
 
-        public override bool Move()
+        public override bool MoveCursor()
         {
             //(rand.Next(lastMove, lastMove + 3) % BoardSize + BoardSize) % BoardSize;
             //return rand.Next(1, BoardSize + 2);
