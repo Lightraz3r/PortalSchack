@@ -90,6 +90,8 @@ namespace Luffarschack
 
         static ConsoleKeyInfo KeyPressed;
 
+        Random rand = new Random();
+
         public Game(Player playerOne, Player playerTwo, int xy, int iRad, bool simulate)
         {
             CurrentPlayers[0] = playerOne;
@@ -108,7 +110,19 @@ namespace Luffarschack
 
         public Player PlayGame()
         {
+            for (int x = 0; x < Board.GetLength(0); x++)
+            {
+                for (int y = 0; y < Board.GetLength(1); y++)
+                {
+                    Board[x, y] = new Piece(null, false);
+                }
+            }
             if (Simulate == false) { ShowTable(); }
+            for (int i = 0; i < Board.Length / 4; i++)
+            {
+                Debug.WriteLine(Board.Length / 4);
+                Board[rand.Next(0, Board.GetLength(0)), rand.Next(0, Board.GetLength(1))] = new Piece(null, true);
+            }
             int a = 0;
             while (true)
             {
@@ -130,10 +144,20 @@ namespace Luffarschack
                 Console.SetCursorPosition(0, Board.GetLength(1) + 10);
                 if (Simulate == false) { Console.WriteLine("Jag Lägger min pjäs på x =" + (move[0] + 1) + " och y = " + (move[1] + 1)); }
                 if (Simulate == false) { ShowTable(); }
+                if (Board[move[0], move[1]].Bomb == true) { Console.WriteLine("Bomb finns där"); Board[move[0], move[1]] = new Piece(null, false); }
                 if (CheckWin(move) == true) { if (Simulate == false) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); PressedSpace(); } return CurrentPlayers[a % 2]; }
                 if (CheckDraw() == true) { if (Simulate == false) { Console.WriteLine("Draw"); PressedSpace(); } return null; }
                 a++;
             }
+        }
+
+        private void Checkbomb(int[] move)
+        {
+            if (Board[move[0], move[1]].Bomb == true)
+            {
+                Board[move[0], move[1]] = new Piece(null, false);
+            }
+            throw new NotImplementedException();
         }
 
         private void PressedSpace()
@@ -161,7 +185,7 @@ namespace Luffarschack
             {
                 for (int y = 0; y < Board.GetLength(1); y++)
                 {
-                    if (Board[x, y] == null) { return false; }
+                    if (Board[x, y].Owner == null) { return false; }
                 }
             }
             return true;
@@ -177,14 +201,14 @@ namespace Luffarschack
                     if (x == CursorPos[0] + 1 && y == CursorPos[1]) { Console.Write("<"); }
                     else if (x != CursorPos[0] || y != CursorPos[1]) { Console.Write("|"); }
                     else { Console.Write(">"); }
-                    if (Board[x, y] == null) { Console.Write(" "); }
+                    if (Board[x, y].Owner == null) { Console.Write(" "); }
                     else if (Board[x, y].Owner == CurrentPlayers[0]) { Console.Write("X"); }
                     else if (Board[x, y].Owner == CurrentPlayers[1]) { Console.Write("O"); }
                 }
                 if (Board.GetLength(0) == CursorPos[0] + 1 && y == CursorPos[1]) { Console.WriteLine("<"); }
                 else { Console.WriteLine("|"); }
             }
-            Console.SetCursorPosition(0, 7);
+            Console.SetCursorPosition(0, Board.GetLength(1) + 2);
         }
 
         private bool CheckWin(int[] move)
@@ -212,7 +236,7 @@ namespace Luffarschack
             int inARow = 0;
             for (int xy = -(IRad - 1); xy < IRad - 1; xy++)
             {
-                if (Board[Mod((move[0] + reverseX * xy), Board.GetLength(0)), Mod((move[1] + reverseY * xy), Board.GetLength(1))] == null) { inARow = 0; }
+                if (Board[Mod((move[0] + reverseX * xy), Board.GetLength(0)), Mod((move[1] + reverseY * xy), Board.GetLength(1))].Owner == null) { inARow = 0; }
                 else if (Board[Mod((move[0] + reverseX * xy), Board.GetLength(0)), Mod((move[1] + reverseY * xy), Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
                 else { inARow = 0; }
                 if (inARow == IRad) { return true; }
@@ -225,7 +249,7 @@ namespace Luffarschack
             int inARow = 0;
             for (int xy = -(IRad - 1); xy < IRad - 1; xy++)
             {
-                if (Board[Mod((move[0] + reverseX * xy), Board.GetLength(0)), Mod((move[1] + reverseY * xy), Board.GetLength(1))] == null) { inARow = 0; }
+                if (Board[Mod((move[0] + reverseX * xy), Board.GetLength(0)), Mod((move[1] + reverseY * xy), Board.GetLength(1))].Owner == null) { inARow = 0; }
                 else if (Board[Mod((move[0] + reverseX * xy), Board.GetLength(0)), Mod((move[1] + reverseY * xy), Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
                 else { inARow = 0; }
                 if (inARow == IRad) { return true; }
@@ -241,7 +265,7 @@ namespace Luffarschack
                 int inARow = 0;
                 for (int x = -(IRad - 1); x < IRad - 1; x++)
                 {
-                    if (Board[Mod((move[0] + reverse * x), Board.GetLength(0)), move[1]] == null) { inARow = 0; }
+                    if (Board[Mod((move[0] + reverse * x), Board.GetLength(0)), move[1]].Owner == null) { inARow = 0; }
                     else if (Board[Mod((move[0] + reverse * x), Board.GetLength(0)), move[1]].Owner == Board[move[0], move[1]].Owner) { inARow++; }
                     else { inARow = 0; }
                     if (inARow == IRad) { return true; }
@@ -259,7 +283,7 @@ namespace Luffarschack
                 int inARow = 0;
                 for (int y = -(IRad - 1); y < IRad - 1; y++)
                 {
-                    if (Board[move[0], Mod((move[1] + reverse * y), Board.GetLength(1))] == null) { inARow = 0; }
+                    if (Board[move[0], Mod((move[1] + reverse * y), Board.GetLength(1))].Owner == null) { inARow = 0; }
                     else if (Board[move[0], Mod((move[1] + reverse * y), Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
                     else { inARow = 0; }
                     if (inARow == IRad) { return true; }
@@ -278,7 +302,7 @@ namespace Luffarschack
         {
             LastMove[0] = move[0];
             LastMove[1] = move[1];
-            Board[move[0], move[1]] = new Piece(owner);
+            Board[move[0], move[1]] = new Piece(owner, Board[move[0], move[1]].Bomb);
         }
 
         private bool MoveOk(int[] move, Player owner)
@@ -287,7 +311,7 @@ namespace Luffarschack
             {
                 if (move[i] > Board.GetLength(i) - 1 || move[i] < 0) { return false; }
             }
-            if (Board[move[0], move[1]] != null)
+            if (Board[move[0], move[1]].Owner != null)
             {
                 return false;
             }
@@ -299,9 +323,12 @@ namespace Luffarschack
     {
         public Player Owner { get; set; }
 
-        public Piece(Player owner)
+        public bool Bomb { get; set; }
+
+        public Piece(Player owner, bool bomb = false)
         {
             Owner = owner;
+            Bomb = bomb;
         }
     }
 
