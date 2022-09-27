@@ -128,10 +128,10 @@ namespace Luffarschack
             {
                 int[] move = new int[2];
                 bool input = false;
-                while (input == false)
+                while (!input)
                 {
                     bool enter = false;
-                    while (enter == false)
+                    while (!enter)
                     {
                         enter = CurrentPlayers[a % 2].MoveCursor();
                         CursorOk();
@@ -146,16 +146,18 @@ namespace Luffarschack
                 if (Simulate == false) { ShowTable(); }
                 if (Board[move[0], move[1]].Bomb == true) { Console.WriteLine("Bomb finns där"); Board[move[0], move[1]] = new Piece(null, false); }
                 if (CheckWin(move) == true) { if (Simulate == false) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); PressedSpace(); } return CurrentPlayers[a % 2]; }
+                OthelloMove(move);
                 if (CheckDraw() == true) { if (Simulate == false) { Console.WriteLine("Draw"); PressedSpace(); } return null; }
                 a++;
             }
         }
 
-        private void Checkbomb(int[] move)
+        private void OthelloMove(int[] move)
         {
-            if (Board[move[0], move[1]].Bomb == true)
+            for (int x = -2; x < 2; x++)
             {
-                Board[move[0], move[1]] = new Piece(null, false);
+                if ((x == -2 || x == 2) && Board[move[0] + x, move[1]].Owner == Board[move[0], move[1]].Owner) { }
+                else { }
             }
             throw new NotImplementedException();
         }
