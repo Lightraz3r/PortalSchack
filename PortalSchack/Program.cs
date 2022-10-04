@@ -156,7 +156,13 @@ namespace Luffarschack
         {
             VerticalOthello(move);
             HorizontalOthello(move);
+            DiagonalOthello(move);
             return;
+        }
+
+        private void DiagonalOthello(int[] move)
+        {
+            throw new NotImplementedException();
         }
 
         private void VerticalOthello(int[] move)
@@ -165,15 +171,15 @@ namespace Luffarschack
             for (int i = 0; i < 2; i++)
             {
                 int count = 0;
-                for (int x = 0; x < 4; x++)
+                for (int y = 0; y < 4; y++)
                 {
-                    if (Board[move[0], Modulo(move[1] + reverse * x, Board.GetLength(1))].Owner == null) { break; }
-                    if (count == 2 && Board[Modulo(move[0] + reverse * x, Board.GetLength(0)), move[1]].Owner == Board[move[0], move[1]].Owner)
+                    if (Board[move[0], Modulo(move[1] + reverse * y, Board.GetLength(1))].Owner == null) { break; }
+                    if (count == 2 && Board[move[0], Modulo(move[0] + reverse * y, Board.GetLength(0))].Owner == Board[move[0], move[1]].Owner)
                     {
                         Board[move[0], Modulo(move[1] + reverse * 1, Board.GetLength(1))] = new Piece(null, false);
                         Board[move[0], Modulo(move[1] + reverse * 2, Board.GetLength(1))] = new Piece(null, false);
                     }
-                    if ((x != -3 || x != 3 || x != 0) && Board[move[0], Modulo(move[1] + reverse * x, Board.GetLength(1))].Owner != Board[move[0], move[1]].Owner) { count++; }
+                    if ((y != -3 || y != 3 || y != 0) && Board[move[0], Modulo(move[1] + reverse * y, Board.GetLength(1))].Owner != Board[move[0], move[1]].Owner) { count++; }
                     else { count = 0; }
                 }
                 reverse = -1;
