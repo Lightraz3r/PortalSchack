@@ -120,7 +120,6 @@ namespace Luffarschack
             if (Simulate == false) { ShowTable(); }
             for (int i = 0; i < Board.Length / 4; i++)
             {
-                Debug.WriteLine(Board.Length / 4);
                 Board[rand.Next(0, Board.GetLength(0)), rand.Next(0, Board.GetLength(1))] = new Piece(null, true);
             }
             int a = 0;
@@ -146,64 +145,36 @@ namespace Luffarschack
                 if (Simulate == false) { ShowTable(); }
                 if (Board[move[0], move[1]].Bomb == true) { Console.WriteLine("Bomb finns där"); Board[move[0], move[1]] = new Piece(null, false); }
                 if (CheckWin(move) == true) { if (Simulate == false) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); PressedSpace(); } return CurrentPlayers[a % 2]; }
-                OthelloMove(move);
+                Othello(move);
                 if (CheckDraw() == true) { if (Simulate == false) { Console.WriteLine("Draw"); PressedSpace(); } return null; }
                 a++;
             }
         }
 
-        private void OthelloMove(int[] move)
+        private void Othello(int[] move)
         {
-            VerticalOthello(move);
-            HorizontalOthello(move);
-            DiagonalOthello(move);
+            for (int x = -1; x < 2; x++)
+            {
+                for (int y = -1; y < 2; y++)
+                {
+                    if (Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))].Owner != null && Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))].Owner != Board[move[0], move[1]].Owner)
+                    {
+                        CheckOthelloMove(move, x, y);
+                    }
+                }
+            }
             return;
         }
 
-        private void DiagonalOthello(int[] move)
+        private void CheckOthelloMove(int[] move, int x, int y)
         {
-            throw new NotImplementedException();
-        }
-
-        private void VerticalOthello(int[] move)
-        {
-            int reverse = 1;
-            for (int i = 0; i < 2; i++)
+            if (Board[Modulo(move[0] + x * 2, Board.GetLength(0)), Modulo(move[1] + y * 2, Board.GetLength(1))].Owner == Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))].Owner)
             {
-                int count = 0;
-                for (int y = 0; y < 4; y++)
+                if (Board[Modulo(move[0] + x * 3, Board.GetLength(0)), Modulo(move[1] + y * 3, Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner)
                 {
-                    if (Board[move[0], Modulo(move[1] + reverse * y, Board.GetLength(1))].Owner == null) { break; }
-                    if (count == 2 && Board[move[0], Modulo(move[0] + reverse * y, Board.GetLength(0))].Owner == Board[move[0], move[1]].Owner)
-                    {
-                        Board[move[0], Modulo(move[1] + reverse * 1, Board.GetLength(1))] = new Piece(null, false);
-                        Board[move[0], Modulo(move[1] + reverse * 2, Board.GetLength(1))] = new Piece(null, false);
-                    }
-                    if ((y != -3 || y != 3 || y != 0) && Board[move[0], Modulo(move[1] + reverse * y, Board.GetLength(1))].Owner != Board[move[0], move[1]].Owner) { count++; }
-                    else { count = 0; }
+                    Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))] = new Piece(null, false);
+                    Board[Modulo(move[0] + x * 2, Board.GetLength(0)), Modulo(move[1] + y * 2, Board.GetLength(1))] = new Piece(null, false);
                 }
-                reverse = -1;
-            }
-        }
-
-        private void HorizontalOthello(int[] move)
-        {
-            int reverse = 1;
-            for (int i = 0; i < 2; i++)
-            {
-                int count = 0;
-                for (int x = 0; x < 4; x++)
-                {
-                    if (Board[Modulo(move[0] + reverse * x, Board.GetLength(0)), move[1]].Owner == null) { break; }
-                    if (count == 2 && Board[Modulo(move[0] + reverse * x, Board.GetLength(0)), move[1]].Owner == Board[move[0], move[1]].Owner)
-                    {
-                        Board[Modulo(move[0] + reverse * 1, Board.GetLength(0)), move[1]] = new Piece(null, false);
-                        Board[Modulo(move[0] + reverse * 2, Board.GetLength(0)), move[1]] = new Piece(null, false);
-                    }
-                    if ((x != -3 || x != 3 || x != 0) && Board[Modulo(move[0] + reverse * x, Board.GetLength(0)), move[1]].Owner != Board[move[0], move[1]].Owner) { count++; }
-                    else { count = 0; }
-                }
-                reverse = -1;
             }
         }
 
@@ -260,82 +231,31 @@ namespace Luffarschack
 
         private bool CheckWin(int[] move)
         {
-            if (CheckVertical(move) == true) { return true; }
-            if (CheckHorizontal(move) == true) { return true; }
-            if (CheckDiagonal(move) == true) { return true; }
-            return false;
-        }
-
-        private bool CheckDiagonal(int[] move)
-        {
-            int reverse = 1;
-            for (int i = 0; i < 2; i++)
+            for (int x = -1; x < 2; x++)
             {
-                if (DiagonalUD(move, reverse, reverse) == true) { return true; }
-                if (DiagonalDU(move, reverse, -reverse) == true) { return true; }
-                reverse = -1;
+                for (int y = -1; y < 2; y++)
+                {
+                    if (Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))] != Board[move[0], move[1]])
+                    {
+                        if (Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner)
+                        {
+                            if (CheckRow(move, x, y) == true) { return true; }
+                        }
+                    }
+                }
             }
             return false;
         }
 
-        private bool DiagonalDU(int[] move, int reverseX, int reverseY)
+        private bool CheckRow(int[] move, int x, int y)
         {
             int inARow = 0;
-            for (int xy = -(IRad - 1); xy < IRad - 1; xy++)
+            for (int i = -(IRad - 1); i < IRad; i++)
             {
-                if (Board[Modulo((move[0] + reverseX * xy), Board.GetLength(0)), Modulo((move[1] + reverseY * xy), Board.GetLength(1))].Owner == null) { inARow = 0; }
-                else if (Board[Modulo((move[0] + reverseX * xy), Board.GetLength(0)), Modulo((move[1] + reverseY * xy), Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
+                if (Board[Modulo(move[0] + x * i, Board.GetLength(0)), Modulo(move[1] + y * i, Board.GetLength(1))].Owner == null) { inARow = 0; }
+                else if (Board[Modulo(move[0] + x * i, Board.GetLength(0)), Modulo(move[1] + y * i, Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
                 else { inARow = 0; }
                 if (inARow == IRad) { return true; }
-            }
-            return false;
-        } //diagonal(Down and Up) "/"
-
-        private bool DiagonalUD(int[] move, int reverseX, int reverseY)
-        {
-            int inARow = 0;
-            for (int xy = -(IRad - 1); xy < IRad - 1; xy++)
-            {
-                if (Board[Modulo((move[0] + reverseX * xy), Board.GetLength(0)), Modulo((move[1] + reverseY * xy), Board.GetLength(1))].Owner == null) { inARow = 0; }
-                else if (Board[Modulo((move[0] + reverseX * xy), Board.GetLength(0)), Modulo((move[1] + reverseY * xy), Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
-                else { inARow = 0; }
-                if (inARow == IRad) { return true; }
-            }
-            return false;
-        } //Diagonal(Up and Down) "\"
-
-        private bool CheckHorizontal(int[] move)
-        {
-            int reverse = 1;
-            for (int i = 0; i < 2; i++)
-            {
-                int inARow = 0;
-                for (int x = -(IRad - 1); x < IRad - 1; x++)
-                {
-                    if (Board[Modulo((move[0] + reverse * x), Board.GetLength(0)), move[1]].Owner == null) { inARow = 0; }
-                    else if (Board[Modulo((move[0] + reverse * x), Board.GetLength(0)), move[1]].Owner == Board[move[0], move[1]].Owner) { inARow++; }
-                    else { inARow = 0; }
-                    if (inARow == IRad) { return true; }
-                }
-                reverse = -1;
-            }
-            return false;
-        }
-
-        private bool CheckVertical(int[] move)
-        {
-            int reverse = 1;
-            for (int i = 0; i < 2; i++)
-            {
-                int inARow = 0;
-                for (int y = -(IRad - 1); y < IRad - 1; y++)
-                {
-                    if (Board[move[0], Modulo((move[1] + reverse * y), Board.GetLength(1))].Owner == null) { inARow = 0; }
-                    else if (Board[move[0], Modulo((move[1] + reverse * y), Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner) { inARow++; }
-                    else { inARow = 0; }
-                    if (inARow == IRad) { return true; }
-                }
-                reverse = -1;
             }
             return false;
         }
