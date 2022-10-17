@@ -35,7 +35,7 @@ namespace Luffarschack
             int[] p = new int[] { p1, p2 };
             Console.WriteLine("Hur många i rad(4-8)");
             int iRad = 0;
-            while (iRad < 4 || iRad > 8)
+            while (iRad < 4)
             {
                 iRad = Convert.ToInt32(Console.ReadLine());
             }
@@ -239,7 +239,7 @@ namespace Luffarschack
                     {
                         if (Board[Modulo(move[0] + x, Board.GetLength(0)), Modulo(move[1] + y, Board.GetLength(1))].Owner == Board[move[0], move[1]].Owner)
                         {
-                            if (CheckRow(move, x, y) == true) { return true; }
+                            if (CheckDir(move, x, y) == true) { return true; }
                         }
                     }
                 }
@@ -247,7 +247,7 @@ namespace Luffarschack
             return false;
         }
 
-        private bool CheckRow(int[] move, int x, int y)
+        private bool CheckDir(int[] move, int x, int y)
         {
             int inARow = 0;
             for (int i = -(IRad - 1); i < IRad; i++)
@@ -314,8 +314,6 @@ namespace Luffarschack
 
         public override bool MoveCursor()
         {
-            //int number = Convert.ToInt32(Console.ReadLine());
-            //return number;
             ConsoleKeyInfo keyPressed;
             keyPressed = Console.ReadKey();
             string key = keyPressed.Key.ToString();
