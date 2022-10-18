@@ -11,7 +11,26 @@ namespace Luffarschack
     {
         static void Main(string[] args)
         {
-            GameController.Start();
+            Console.WriteLine( "    ___       ___       ___       ___       ___       ___            ___       ___    ||    ___       ___       ___   ");
+            Console.WriteLine(@"   /\  \     /\  \     /\  \     /\  \     /\  \     /\__\          /\  \     /\__\   ||   /\  \     /\  \     /\  \ ");
+            Console.WriteLine(@"  /::\  \   /::\  \   /::\  \    \:\  \   /::\  \   /:/  /         /::\  \   /:/__/_  ||  /::\  \   /::\  \   /::\  \ ");
+            Console.WriteLine(@" /::\:\__\ /:/\:\__\ /::\:\__\   /::\__\ /::\:\__\ /:/__/         /:/\:\__\ /::\/\__\ || /::\:\__\ /\:\:\__\ /\:\:\__\");
+            Console.WriteLine(@" \/\::/  / \:\/:/  / \;:::/  /  /:/\/__/ \/\::/  / \:\  \         \:\ \/__/ \/\::/  / || \:\:\/  / \:\:\/__/ \:\:\/__/");
+            Console.WriteLine(@"    \/__/   \::/  /   |:\/__/   \/__/      /:/  /   \:\__\         \:\__\     /:/  /  ||  \:\/  /   \::/  /   \::/  / ");
+            Console.WriteLine(@"             \/__/     \|__|               \/__/     \/__/          \/__/     \/__/   ||   \/__/     \/__/     \/__/  ");
+            Console.SetCursorPosition(47, 20);
+            Console.WriteLine("Press Space To Continue");
+            ConsoleKeyInfo keyPressed;
+            while(true)
+            {
+                keyPressed = Console.ReadKey();
+                String key = keyPressed.Key.ToString();
+                if(key == "Spacebar") { Console.Clear(); break; }
+            }
+            while(true)
+            {
+                GameController.Start();
+            }
         }
     }
 
@@ -22,6 +41,7 @@ namespace Luffarschack
             List<Player> playerList = new List<Player>();
             Console.WriteLine("Vad heter du?");
             playerList.Add(new HumanPlayer(Console.ReadLine()));
+            playerList.Add(new HumanPlayer("P2"));
             playerList.Add(new RandomPlayer("RandomPlayer"));
             playerList.Add(new AveragePlayer("AveragePlayer"));
             Console.Clear();
@@ -33,9 +53,9 @@ namespace Luffarschack
             int p1 = Convert.ToInt32(Console.ReadLine()) - 1;
             int p2 = Convert.ToInt32(Console.ReadLine()) - 1;
             int[] p = new int[] { p1, p2 };
-            Console.WriteLine("Hur många i rad(4-8)");
+            Console.WriteLine("Hur många i rad?");
             int iRad = 0;
-            while (iRad < 4)
+            while ()
             {
                 iRad = Convert.ToInt32(Console.ReadLine());
             }
