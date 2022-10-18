@@ -19,7 +19,7 @@ namespace Luffarschack
             Console.WriteLine(@"    \/__/   \::/  /   |:\/__/   \/__/      /:/  /   \:\__\         \:\__\     /:/  /  ||  \:\/  /   \::/  /   \::/  / ");
             Console.WriteLine(@"             \/__/     \|__|               \/__/     \/__/          \/__/     \/__/   ||   \/__/     \/__/     \/__/  ");
             Console.SetCursorPosition(47, 20);
-            Console.WriteLine("Press Space To Continue");
+            Console.WriteLine("Tryck Mellanslag För Att Forstätta");
             ConsoleKeyInfo keyPressed;
             while(true)
             {
@@ -42,9 +42,8 @@ namespace Luffarschack
         {
             List<Player> playerList = new List<Player>();
             playerList.Add(new HumanPlayer(name));
-            playerList.Add(new HumanPlayer("P2"));
+            playerList.Add(new HumanPlayer("Player 2"));
             playerList.Add(new RandomPlayer("RandomPlayer"));
-            playerList.Add(new RandomPlayer("R2D2"));
             playerList.Add(new AveragePlayer("AveragePlayer"));
             Console.Clear();
             Console.WriteLine("Vilka spelare är med?");
@@ -61,9 +60,9 @@ namespace Luffarschack
             {
                 iRad = Convert.ToInt32(Console.ReadLine());
             }
-            Console.WriteLine("Storleken av brädan?(" + iRad + " < x <= 20)");
+            Console.WriteLine("Storleken av brädan?(" + iRad + " < x <= 50)");
             int xy = 0;
-            while (xy < iRad + 1 || xy > 20)
+            while (xy < iRad + 1 || xy > 50)
             {
                 xy = Convert.ToInt32(Console.ReadLine());
             }
@@ -83,8 +82,11 @@ namespace Luffarschack
             {
                 for (int j = 0; j < 2; j++)
                 {
-                    Console.SetCursorPosition(xy * 4, 2 + j * 2);
-                    Console.WriteLine(playerList[p[j]].Name + " " + wins[j]);
+                    string s = "";
+                    if (playerList[p[j]] == playerList[p1]) { s = "X"; }
+                    else { s = "O"; }
+                    Console.SetCursorPosition(xy * 2 + 5, 1 + j * 2);
+                    Console.WriteLine(s + " " + playerList[p[j]].Name + " " + wins[j]);
                 }
                 bool simulate = true;
                 if (i < nbrOfSim) { simulate = false; }
@@ -104,7 +106,7 @@ namespace Luffarschack
     {
         private Player[] CurrentPlayers = new Player[2];
 
-        public Piece[,] Board { get; private set; }
+        public static Piece[,] Board { get; private set; }
 
         public static int[] CursorPos;
 
@@ -166,13 +168,15 @@ namespace Luffarschack
                     input = MoveOk(move, CurrentPlayers[a % 2]);
                 }
                 PutPiece(move, CurrentPlayers[a % 2]);
-                Console.SetCursorPosition(0, Board.GetLength(1) + 10);
-                //if (Simulate == false) { Console.WriteLine("Jag Lägger min pjäs på x =" + (move[0] + 1) + " och y = " + (move[1] + 1)); }
                 if (!Simulate) { ShowTable(); }
-                if (Board[move[0], move[1]].Bomb) { if (!Simulate) { Console.Write("Bomb finns där"); PressedSpace(); ClearLine(); } Board[move[0], move[1]] = new Piece(null, false); }
-                if (CheckWin(move)) { if (!Simulate) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); Console.WriteLine("Press Space to Continue"); PressedSpace(); Console.Clear(); } return CurrentPlayers[a % 2]; }
+                if (Board[move[0], move[1]].Bomb) { if (!Simulate) { Console.Write("Bomb finns där (Tryck Mellanslag)"); PressedSpace(); ClearLine(); } Board[move[0], move[1]] = new Piece(null, false); }
+                if (CheckWin(move)) { if (!Simulate) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); Console.WriteLine("Tryck Mellanslag För Att Forstätta"); PressedSpace(); Console.Clear(); } return CurrentPlayers[a % 2]; }
                 Othello(move);
-                if (CheckDraw()) { if (!Simulate) { Console.WriteLine("Draw"); Console.WriteLine("Press Space to Continue"); PressedSpace(); Console.Clear(); } return null; }
+                if (CheckDraw()) { if (!Simulate) { Console.WriteLine("Oavgjort"); Console.WriteLine("Tryck Mellanslag För Att Forstätta"); PressedSpace(); Console.Clear(); } return null; }
+                if (!Simulate && !(CurrentPlayers[0] is HumanPlayer || CurrentPlayers[1] is HumanPlayer))
+                {
+                    Console.ReadKey();
+                }
                 a++;
             }
         }
@@ -365,15 +369,9 @@ namespace Luffarschack
 
         public override bool MoveCursor(List<int[]> moves)
         {
-            while (true)
-            {
-                int key = Game.rand.Next(1, 6);
-                if (key == 1) { Game.CursorPos[1]++; }
-                else if (key == 2) { Game.CursorPos[1]--; }
-                else if (key == 3) { Game.CursorPos[0]++; }
-                else if (key == 4) { Game.CursorPos[0]--; }
-                else { return true; }
-            }
+            Game.CursorPos[0] = Game.rand.Next(0, Game.Board.GetLength(0));
+            Game.CursorPos[1] = Game.rand.Next(0, Game.Board.GetLength(1));
+            return true;
         }
     }
 
@@ -386,9 +384,17 @@ namespace Luffarschack
 
         public override bool MoveCursor(List<int[]> moves)
         {
-            //(rand.Next(lastMove, lastMove + 3) % BoardSize + BoardSize) % BoardSize;
-            //return rand.Next(1, BoardSize + 2);
-            return false;
+            if (moves.Count > 1)
+            {
+                Game.CursorPos[0] = Game.rand.Next(moves[1][0] - 1, moves[1][0] + 1);
+                Game.CursorPos[1] = Game.rand.Next(moves[1][1] - 1, moves[1][1] + 1);
+            }
+            else
+            {
+                Game.CursorPos[0] = Game.rand.Next(0, Game.Board.GetLength(0));
+                Game.CursorPos[1] = Game.rand.Next(0, Game.Board.GetLength(1));
+            }
+            return true;
         }
     }
 }
