@@ -22,7 +22,7 @@ namespace Luffarschack
             Console.WriteLine("Tryck Mellanslag För Att Forstätta");
             ConsoleKeyInfo keyPressed;
             while(true)
-            {
+            { //Ser till att man trycker mellanslag innan man kan fortsätta
                 keyPressed = Console.ReadKey();
                 String key = keyPressed.Key.ToString();
                 if(key == "Spacebar") { Console.Clear(); break; }
@@ -30,7 +30,7 @@ namespace Luffarschack
             Console.WriteLine("Vad heter du?");
             string name = Console.ReadLine();
             while (true)
-            {
+            { //Startar spelet
                 GameController.Start(name);
             }
         }
@@ -48,29 +48,29 @@ namespace Luffarschack
             Console.Clear();
             Console.WriteLine("Vilka spelare är med?");
             for (int i = 0; i < playerList.Count; i++)
-            {
+            { //Skriver ner en lista med spelarna
                 Console.WriteLine((i + 1) + " " + playerList[i].Name);
             }
             int p1 = Convert.ToInt32(Console.ReadLine()) - 1;
             int p2 = Convert.ToInt32(Console.ReadLine()) - 1;
             int[] p = new int[] { p1, p2 };
-            Console.WriteLine("Hur många i rad?(4 - 10)");
+            Console.WriteLine("Hur många i rad?(4 - 10)"); 
             int iRad = 0;
-            while(iRad < 4 || iRad > 10)
-            {
+            while(iRad < 4 || iRad > 49)
+            { //Ser till att man skriver mellan 4 och 49
                 iRad = Convert.ToInt32(Console.ReadLine());
             }
             Console.WriteLine("Storleken av brädan?(" + iRad + " < x <= 50)");
             int xy = 0;
             while (xy < iRad + 1 || xy > 50)
-            {
+            { //Ser till att man skriver mellan ett mer än vad man skrev på den förra frågan och 50
                 xy = Convert.ToInt32(Console.ReadLine());
             }
             Console.WriteLine("Hur många rundor skall spelas?");
             int nbrOfGames = Convert.ToInt32(Console.ReadLine());
             int nbrOfSim = nbrOfGames;
             if (p1 > 1 && p2 > 1)
-            {
+            { //Om Spelarna är inte humanplayers kommer den frågan att visas
                 Console.WriteLine("hur många rundor skall visas?");
                 nbrOfSim = Convert.ToInt32(Console.ReadLine());
             }
@@ -81,7 +81,7 @@ namespace Luffarschack
             for (int i = 0; i < nbrOfGames; i++)
             {
                 for (int j = 0; j < 2; j++)
-                {
+                { //Här skrivs namnen på spelarna som spelas och hur deras pjäser ser ut
                     string s = "";
                     if (playerList[p[j]] == playerList[p1]) { s = "X"; }
                     else { s = "O"; }
@@ -94,9 +94,9 @@ namespace Luffarschack
                 Player winner = game.PlayGame();
                 if (winner == playerOne) { wins[0]++; }
                 else if (winner == playerTwo) { wins[1]++; }
-                int secondP = p1;
+                int secondPlayer = p1; //Här ändras ordningen på spelarna
                 p1 = p2;
-                p2 = secondP;
+                p2 = secondPlayer;
             }
             Console.ReadKey();
         }
@@ -104,17 +104,17 @@ namespace Luffarschack
 
     public class Game
     {
-        private Player[] CurrentPlayers = new Player[2];
+        private Player[] CurrentPlayers = new Player[2]; //Aktiva spelare
 
-        public static Piece[,] Board { get; private set; }
+        public static Piece[,] Board { get; private set; } //Brädan
 
-        public static int[] CursorPos;
+        public static int[] CursorPos; //Cursorns position
 
-        public int IRad { get; private set; }
+        public int IRad { get; private set; } //Antal i rad som spelas till
 
-        private bool Simulate;
+        private bool Simulate; //Om spelen ska simuleras
 
-        public List<int[]> Moves { get; private set; }
+        public List<int[]> Moves { get; private set; } //Lista på dragen som har körts
 
         static ConsoleKeyInfo KeyPressed;
 
@@ -139,7 +139,7 @@ namespace Luffarschack
         public Player PlayGame()
         {
             for (int x = 0; x < Board.GetLength(0); x++)
-            {
+            { //Här tilldelas new Piece i varje 2d array rutor.
                 for (int y = 0; y < Board.GetLength(1); y++)
                 {
                     Board[x, y] = new Piece(null, false);
@@ -147,19 +147,19 @@ namespace Luffarschack
             }
             if (!Simulate) { ShowTable(); }
             for (int i = 0; i < Board.Length / 6; i++)
-            {
+            { //Slumpar vart minor ska vara
                 Board[rand.Next(0, Board.GetLength(0)), rand.Next(0, Board.GetLength(1))] = new Piece(null, true);
             }
             int a = 0;
             while (true)
-            {
+            { //varje tur kommer detta hända
                 int[] move = new int[2];
                 bool input = false;
                 while (!input)
-                {
+                { //spelarens drag
                     bool enter = false;
                     while (!enter)
-                    {
+                    { //kollar om spelaren har bestämmt sitt drag
                         enter = CurrentPlayers[a % 2].MoveCursor(Moves);
                         CursorOk();
                         move = CursorPos;
@@ -176,7 +176,7 @@ namespace Luffarschack
                 if (!Simulate && !(CurrentPlayers[0] is HumanPlayer || CurrentPlayers[1] is HumanPlayer))
                 {
                     Console.ReadKey();
-                }
+                } //Detta gör att man kan se steg för steg hur AI mot AI spelas
                 a++;
             }
         }
@@ -184,8 +184,8 @@ namespace Luffarschack
         private void ClearLine()
         {
             Console.SetCursorPosition(0, Board.GetLength(1) + 2);
-            Console.WriteLine("                            ");
-        }
+            Console.WriteLine("                                         ");
+        } // Tar bort texten "Bomb finns där (Tryck Mellanslag)"
 
         private void Othello(int[] move)
         {
@@ -200,7 +200,7 @@ namespace Luffarschack
                 }
             }
             return;
-        }
+        } //Kollar runt draget som just spelats genom att kolla om rutorna är antingen inte null(alltså ägs av ingen) eller ägs in av spelaren som gjorde draget
 
         private void CheckOthelloMove(int[] move, int x, int y)
         {
@@ -212,7 +212,7 @@ namespace Luffarschack
                     Board[Modulo(move[0] + x * 2, Board.GetLength(0)), Modulo(move[1] + y * 2, Board.GetLength(1))] = new Piece(null, false);
                 }
             }
-        }
+        }  //Använder riktningen som räknats ut i Othello metoden, för att se om det finns två motsåndarenspjäser mellan den andras
 
         private void PressedSpace()
         {
@@ -222,7 +222,7 @@ namespace Luffarschack
                 string key = KeyPressed.Key.ToString();
                 if (key == "Spacebar") { return; }
             }
-        }
+        } //Kollar om människo spelaren track på mellanslag
 
         private void CursorOk()
         {
@@ -230,7 +230,7 @@ namespace Luffarschack
             if(CursorPos[0] < 0) { CursorPos[0] = Board.GetLength(0) - 1; }
             if(CursorPos[1] > Board.GetLength(1) - 1) { CursorPos[1] = 0; }
             if(CursorPos[1] < 0) { CursorPos[1] = Board.GetLength(1) - 1; }
-        }
+        } //Kollar om cursorn nuddar/går ut från brädans väggar
 
         private bool CheckDraw()
         {
@@ -242,7 +242,7 @@ namespace Luffarschack
                 }
             }
             return true;
-        }
+        } //Kollar om det finns inga möjliga drag om så är det oavgjort
 
         private void ShowTable()
         {
@@ -262,7 +262,7 @@ namespace Luffarschack
                 else { Console.WriteLine("|"); }
             }
             Console.SetCursorPosition(0, Board.GetLength(1) + 2);
-        }
+        } //Skriver ut brädan
 
         private bool CheckWin(int[] move)
         {
@@ -280,7 +280,7 @@ namespace Luffarschack
                 }
             }
             return false;
-        }
+        } //Kollar runt draget som just spelats genom att kolla om några av rutorna ägs av spelaren
 
         private bool CheckDir(int[] move, int x, int y)
         {
@@ -293,18 +293,18 @@ namespace Luffarschack
                 if (inARow == IRad) { return true; }
             }
             return false;
-        }
+        } //Kollar lutningen som räknats ut i CheckWin metoden, för att se om spelaren vann. 
 
         public int Modulo(int dividend, int divisor)
         {
             return (dividend % divisor + divisor) % divisor;
-        }
+        } //Ändrar egenskapen hos modulo i visual studio, ex: istället att -1%4 = -1 blir det -1%4 = 3
 
         private void PutPiece(int[] move, Player owner)
         {
             Moves.Add(move);
             Board[move[0], move[1]] = new Piece(owner, Board[move[0], move[1]].Bomb);
-        }
+        } //Lägger pjäsen
 
         private bool MoveOk(int[] move, Player owner)
         {
@@ -317,7 +317,7 @@ namespace Luffarschack
                 return false;
             }
             return true;
-        }
+        } //Kollar om draget är giltigt
     }
 
     public class Piece
@@ -335,8 +335,8 @@ namespace Luffarschack
 
     public abstract class Player
     {
-        public string Name { get; protected set; }
-        public abstract bool MoveCursor(List<int[]> moves);
+        public string Name { get; protected set; } //Spelarens namn
+        public abstract bool MoveCursor(List<int[]> moves); //Spelarens drag 
     }
 
     class HumanPlayer : Player
