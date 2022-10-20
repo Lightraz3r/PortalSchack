@@ -114,7 +114,8 @@ namespace Luffarschack
 
         private bool Simulate; //Om spelen ska simuleras
 
-        public List<int[]> Moves { get; private set; } //Lista på dragen som har körts
+        public List<int> MovesX { get; private set; } //Lista på dragen som har körts
+        public List<int> MovesY { get; private set; } //Lista på dragen som har körts
 
         static ConsoleKeyInfo KeyPressed;
 
@@ -133,7 +134,8 @@ namespace Luffarschack
 
             Simulate = simulate;
 
-            Moves = new List<int[]>();
+            MovesX = new List<int>();
+            MovesY = new List<int>();
         }
 
         public Player PlayGame()
@@ -150,7 +152,7 @@ namespace Luffarschack
             { //Slumpar vart minor ska vara
                 Board[rand.Next(0, Board.GetLength(0)), rand.Next(0, Board.GetLength(1))] = new Piece(null, true);
             }
-            int a = 0;
+            int whosTurn = 0;
             while (true)
             { //varje tur kommer detta hända
                 int[] move = new int[2];
@@ -160,32 +162,32 @@ namespace Luffarschack
                     bool enter = false;
                     while (!enter)
                     { //kollar om spelaren har bestämmt sitt drag
-                        enter = CurrentPlayers[a % 2].MoveCursor(Moves);
+                        enter = CurrentPlayers[whosTurn % 2].MoveCursor(MovesX, MovesY);
                         CursorOk();
                         move = CursorPos;
                         if (!Simulate) { ShowTable(); }
                     }
-                    input = MoveOk(move, CurrentPlayers[a % 2]);
+                    input = MoveOk(move, CurrentPlayers[whosTurn % 2]);
                 }
-                PutPiece(move, CurrentPlayers[a % 2]);
+                PutPiece(move, CurrentPlayers[whosTurn % 2]);
                 if (!Simulate) { ShowTable(); }
-                if (Board[move[0], move[1]].Bomb) { if (!Simulate) { Console.Write("Bomb finns där (Tryck Mellanslag)"); PressedSpace(); ClearLine(); } Board[move[0], move[1]] = new Piece(null, false); }
-                if (CheckWin(move)) { if (!Simulate) { Console.WriteLine(CurrentPlayers[a % 2].Name + " vann"); Console.WriteLine("Tryck Mellanslag För Att Forstätta"); PressedSpace(); Console.Clear(); } return CurrentPlayers[a % 2]; }
-                Othello(move);
+                if (Board[move[0], move[1]].Bomb) { if (!Simulate) { Console.Write("Bomb finns där (Tryck Mellanslag)"); PressedSpace(); ClearLine(0, Board.GetLength(1) + 2); } Board[move[0], move[1]] = new Piece(null, false); }
+                else { Othello(move); }
+                if (CheckWin(move)) { if (!Simulate) { Console.WriteLine(CurrentPlayers[whosTurn % 2].Name + " vann"); Console.WriteLine("Tryck Mellanslag För Att Forstätta"); PressedSpace(); Console.Clear(); } return CurrentPlayers[whosTurn % 2]; }
                 if (CheckDraw()) { if (!Simulate) { Console.WriteLine("Oavgjort"); Console.WriteLine("Tryck Mellanslag För Att Forstätta"); PressedSpace(); Console.Clear(); } return null; }
                 if (!Simulate && !(CurrentPlayers[0] is HumanPlayer || CurrentPlayers[1] is HumanPlayer))
                 {
                     Console.ReadKey();
                 } //Detta gör att man kan se steg för steg hur AI mot AI spelas
-                a++;
+                whosTurn++;
             }
         }
 
-        private void ClearLine()
+        private void ClearLine(int x, int y)
         {
-            Console.SetCursorPosition(0, Board.GetLength(1) + 2);
+            Console.SetCursorPosition(x, y);
             Console.WriteLine("                                         ");
-        } // Tar bort texten "Bomb finns där (Tryck Mellanslag)"
+        } // Tar bort en rad av text, gjort specifikt för "Bomb finns där (Tryck Mellanslag)" men kan användes vart som helst
 
         private void Othello(int[] move)
         {
@@ -295,14 +297,15 @@ namespace Luffarschack
             return false;
         } //Kollar lutningen som räknats ut i CheckWin metoden, för att se om spelaren vann. 
 
-        public int Modulo(int dividend, int divisor)
+        public static int Modulo(int dividend, int divisor)
         {
             return (dividend % divisor + divisor) % divisor;
         } //Ändrar egenskapen hos modulo i visual studio, ex: istället att -1%4 = -1 blir det -1%4 = 3
 
         private void PutPiece(int[] move, Player owner)
         {
-            Moves.Add(move);
+            MovesX.Add(move[0]);
+            MovesY.Add(move[1]);
             Board[move[0], move[1]] = new Piece(owner, Board[move[0], move[1]].Bomb);
         } //Lägger pjäsen
 
@@ -336,7 +339,7 @@ namespace Luffarschack
     public abstract class Player
     {
         public string Name { get; protected set; } //Spelarens namn
-        public abstract bool MoveCursor(List<int[]> moves); //Spelarens drag 
+        public abstract bool MoveCursor(List<int> movesX, List<int> movesY); //Spelarens drag 
     }
 
     class HumanPlayer : Player
@@ -346,7 +349,7 @@ namespace Luffarschack
             Name = name;
         }
 
-        public override bool MoveCursor(List<int[]> moves)
+        public override bool MoveCursor(List<int> movesX, List<int> movesY)
         {
             ConsoleKeyInfo keyPressed;
             keyPressed = Console.ReadKey();
@@ -367,8 +370,8 @@ namespace Luffarschack
             Name = name;
         }
 
-        public override bool MoveCursor(List<int[]> moves)
-        {
+        public override bool MoveCursor(List<int> movesX, List<int> movesY)
+        { //Slumpar vart den ska lägga sin pjäs
             Game.CursorPos[0] = Game.rand.Next(0, Game.Board.GetLength(0));
             Game.CursorPos[1] = Game.rand.Next(0, Game.Board.GetLength(1));
             return true;
@@ -382,15 +385,26 @@ namespace Luffarschack
             Name = name;
         }
 
-        public override bool MoveCursor(List<int[]> moves)
+        public override bool MoveCursor(List<int> movesX, List<int> movesY)
         {
-            if (moves.Count > 1)
+            bool validMove = false;
+            if (movesX.Count > 1)
             {
-                Game.CursorPos[0] = Game.rand.Next(moves[1][0] - 1, moves[1][0] + 1);
-                Game.CursorPos[1] = Game.rand.Next(moves[1][1] - 1, moves[1][1] + 1);
+                for (int x = -1; x < 2; x++)
+                {
+                    for (int y = -1; y < 2; y++)
+                    { //Kollar om det finns en tom ruta runt förra draget som AI:n gjorde
+                        if (Game.Board[Game.Modulo(movesX[1] + x, Game.Board.GetLength(0)), Game.Modulo(movesY[1] + y, Game.Board.GetLength(1))].Owner == null) { validMove = true; }
+                    }
+                }
+                if (validMove == true)
+                { //Slumpar vilken ruta runt förra draget AI:n kommer lägga
+                    Game.CursorPos[0] = movesX[movesX.Count - 2] + Game.rand.Next(-1, 2);
+                    Game.CursorPos[1] = movesY[movesY.Count - 2] + Game.rand.Next(-1, 2);
+                }
             }
-            else
-            {
+            if (movesX.Count <= 1 || validMove == false)
+            { //Om det finns inte mer en 2 drag i MovesX (och MovesY) listan, eller har den ingen tom ruta runt förra draget, kommer den slump totalt vart den kommer lägga sin pjäs
                 Game.CursorPos[0] = Game.rand.Next(0, Game.Board.GetLength(0));
                 Game.CursorPos[1] = Game.rand.Next(0, Game.Board.GetLength(1));
             }
